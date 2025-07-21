@@ -13,7 +13,6 @@ type account struct {
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_=!@";
-// const specials = "-_=!@";
 
 func promptData(text string) string {
 	var res string
@@ -24,13 +23,13 @@ func promptData(text string) string {
   return res
 }
 
-func outputAccount(acc account)  {
+func (acc *account) outputAccount()  {
   fmt.Println(acc.login, acc.password, acc.url);
 }
 
-func generatePassword(length int) (string, error) {
+func (acc *account) generatePassword(length int) error {
   if length < 0 {
-    return "", errors.New("PASSWORD_LENGTH");
+    return errors.New("PASSWORD_LENGTH");
   }
 
   newPass := make([]rune, length);
@@ -41,7 +40,9 @@ func generatePassword(length int) (string, error) {
     newPass[index] = rune(item);
   }
 
-  return string(newPass), nil;
+  acc.password = string(newPass);
+
+  return nil;
 }
 
 func main() {
@@ -56,12 +57,8 @@ func main() {
   }
 
   if len(acc.password) == 0 {
-    newPass, passErr := generatePassword(10);
-
-    if passErr != nil {
-      acc.password = newPass;
-    }
+    acc.generatePassword(10);
   }
 
-  outputAccount(acc);
+  acc.outputAccount();
 }
