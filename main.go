@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/url"
 )
 
 type account struct {
@@ -18,7 +19,7 @@ func promptData(text string) string {
 	var res string
 
 	fmt.Print(text);
-  fmt.Scan(&res);
+  fmt.Scanln(&res);
 
   return res
 }
@@ -45,19 +46,40 @@ func (acc *account) generatePassword(length int) error {
   return nil;
 }
 
+func newAccount(login, password, urlValue string) (*account, error) {
+  if login == "" {
+    return nil, errors.New("INVALID_LOGIN");
+  }
+
+  _, urlErr := url.ParseRequestURI(urlValue);
+
+  if urlErr != nil {
+    return nil, errors.New("INVALID_URL");
+  }
+
+  acc :=  account{
+    login: login,
+    password: password,
+    url: urlValue,
+  };
+
+  if len(acc.password) <= 4 {
+    acc.generatePassword(10);
+  }
+
+  return &acc, nil;
+}
+
 func main() {
   login := promptData("Введите логин: ");
   password := promptData("Введите пароль: ");
   url := promptData("Введите URL: ");
 
-  acc := account{
-    login: login,
-    password: password,
-    url: url,
-  }
+  acc, accErr := newAccount(login, password, url);
 
-  if len(acc.password) == 0 {
-    acc.generatePassword(10);
+  if accErr != nil {
+    fmt.Println(accErr);
+    return;
   }
 
   acc.outputAccount();
