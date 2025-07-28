@@ -2,9 +2,11 @@ package account
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"net/url"
+	"strings"
+
+	"github.com/fatih/color"
 )
 
 type Account struct {
@@ -16,7 +18,8 @@ type Account struct {
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_=!@"
 
 func (acc *Account) OutputAccount() {
-	fmt.Println(acc.login, acc.password, acc.url)
+  output := strings.Join([]string{acc.login, acc.password, acc.url}, " ")
+  color.Red(output)
 }
 
 func (acc *Account) generatePassword(length int) error {
