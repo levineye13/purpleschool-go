@@ -108,6 +108,7 @@ func (vault *Vault) DeleteAccountByUrl(url string) (string, error) {
     if account.Url == url {
       newAccounts := slices.Delete(currentVault.Accounts, index, index + 1)
       vault.Accounts = newAccounts
+      vault.UpdateAt = time.Now()
 
       dataBytes, err := vault.ToBytes()
 
