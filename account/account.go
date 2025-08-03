@@ -5,20 +5,28 @@ import (
 	"math/rand"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/fatih/color"
 )
 
 type Account struct {
-	login    string
-	password string
-	url      string
+	Login    string `json:"login"`
+	Password string `json:"password"`
+	Url      string `json:"url"`
+  CreatedAt time.Time `json:"createdAt"`
+  UpdatedAt time.Time `json:"updatedAt"`
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_=!@"
 
 func (acc *Account) OutputAccount() {
-  output := strings.Join([]string{acc.login, acc.password, acc.url}, " ")
+  output := strings.Join([]string{
+    acc.Login, 
+    acc.Password, 
+    acc.Url,
+    }, " ")
+
   color.Red(output)
 }
 
@@ -35,7 +43,7 @@ func (acc *Account) generatePassword(length int) error {
 		newPass[index] = rune(item)
 	}
 
-	acc.password = string(newPass)
+	acc.Password = string(newPass)
 
 	return nil
 }
@@ -52,14 +60,20 @@ func NewAccount(login, password, urlValue string) (*Account, error) {
 	}
 
 	acc := Account{
-		login:    login,
-		password: password,
-		url:      urlValue,
+		Login:    login,
+		Password: password,
+		Url:      urlValue,
+    CreatedAt: time.Now(),
+    UpdatedAt: time.Now(),
 	}
 
-	if len(acc.password) <= 4 {
+	if len(acc.Password) <= 4 {
 		acc.generatePassword(10)
 	}
 
 	return &acc, nil
 }
+
+func FindAccount() {}
+
+func DeleteAccount() {}
