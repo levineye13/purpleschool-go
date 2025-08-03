@@ -74,6 +74,3 @@ func NewAccount(login, password, urlValue string) (*Account, error) {
 	return &acc, nil
 }
 
-func FindAccount() {}
-
-func DeleteAccount() {}

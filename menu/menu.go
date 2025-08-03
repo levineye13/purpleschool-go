@@ -38,6 +38,19 @@ func findAccount()  {
   color.Cyan(string(data))
 }
 
+func deleteAccount() {
+  url := promptData("Введите URL: ")
+  vault := account.NewVault()
+  deleteRes, err := vault.DeleteAccountByUrl(url)
+
+  if err != nil {
+    color.Red(err.Error())
+    return
+  }
+
+  color.Cyan(deleteRes)
+}
+
 func GetMenu() {
   items := []string{"1", "2", "3", "4"}
   var menuItem string;
@@ -69,7 +82,7 @@ func GetMenu() {
         case "2":
           findAccount()
         case "3":
-          account.DeleteAccount()
+          deleteAccount()
         case "4":
           break Menu
       }

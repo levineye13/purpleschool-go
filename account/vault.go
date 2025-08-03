@@ -3,6 +3,7 @@ package account
 import (
 	"encoding/json"
 	"password/files"
+	"slices"
 	"strings"
 	"time"
 
@@ -84,4 +85,49 @@ func FindAccountsByURL(url string) ([]Account, error) {
   }
 
   return accounts, nil
+}
+
+func (vault *Vault) DeleteAccountByUrl(url string) (string, error) {
+  file, err := files.ReadFile(dataFileName)
+
+  if err != nil {
+    return "", err;
+  }
+
+  var currentVault Vault
+
+  err = json.Unmarshal(file, &currentVault)
+
+  if err != nil {
+    return "", err;
+  }
+
+  isDeleted := false
+
+  for index, account := range currentVault.Accounts {
+    if account.Url == url {
+      newAccounts := slices.Delete(currentVault.Accounts, index, index + 1)
+      vault.Accounts = newAccounts
+
+      dataBytes, err := vault.ToBytes()
+
+      if err != nil {
+        color.Red(err.Error())
+        break;
+      }
+
+      err = files.WriteFile(dataFileName, dataBytes)
+
+      if err == nil {
+        isDeleted = true
+        break;
+      }
+    }
+  }
+
+  if isDeleted == false {
+    return "Аккаунт не удален", nil
+  }
+
+  return "Аккаунт удален", nil
 }
