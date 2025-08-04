@@ -1,3 +1,10 @@
 package storage
 
-type Storage struct{}
+import (
+	"bin/bins"
+)
+
+type Storage struct {
+  Bins bins.BinList `json:"bins"`
+}
+
