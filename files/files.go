@@ -52,3 +52,27 @@ func WriteFile(name string, data []byte) error {
 
   return nil
 }
+
+func CreateFile(name string) (*os.File, error) {
+  _, err := os.Stat(name)
+  isNotExist := errors.Is(err, os.ErrNotExist)
+
+  if isNotExist {
+    file, err := os.Create(name)
+
+    if err != nil {
+      defer file.Close()
+      return file, err
+    }
+  }
+
+  file, err := os.Open(name)
+
+  defer file.Close()
+
+  if err != nil {
+    return nil, err
+  }
+
+  return file, nil
+}

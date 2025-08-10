@@ -6,10 +6,10 @@ import (
 )
 
 type Bin struct {
-	Id        string
-	Name      string
-	Private   bool
-	CreatedAt time.Time
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	Private   bool `json:"private"`
+	CreatedAt time.Time `json:"createAt"`
 }
 
 type BinList = []Bin
