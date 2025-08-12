@@ -8,6 +8,11 @@ import (
 
 func checkJsonExt(name string) bool {
   splitedName := strings.Split(name, ".")
+
+  if len(splitedName) < 2 {
+    return false;
+  }
+  
   ext := splitedName[1]
 
   return ext == "json"
