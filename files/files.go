@@ -6,24 +6,20 @@ import (
 	"strings"
 )
 
-func checkJsonExt(name string) bool {
+func CheckJsonExt(name string) bool {
   splitedName := strings.Split(name, ".")
 
   if len(splitedName) < 2 {
     return false;
   }
-  
+
   ext := splitedName[1]
 
   return ext == "json"
 }
 
 func ReadFile(name string) ([]byte, error) {
-  isJson := checkJsonExt(name)
-
-  if !isJson {
-    return nil, errors.New("INVALID_EXT")
-  }
+  
 
 	file, err := os.ReadFile(name)
 
@@ -35,12 +31,6 @@ func ReadFile(name string) ([]byte, error) {
 }
 
 func WriteFile(name string, data []byte) error {
-  isJson := checkJsonExt(name)
-
-  if !isJson {
-    return errors.New("INVALID_EXT")
-  }
-
   file, err := os.Create(name)
 
   if err != nil {
@@ -73,11 +63,12 @@ func CreateFile(name string) (*os.File, error) {
 
   file, err := os.Open(name)
 
-  defer file.Close()
-
   if err != nil {
     return nil, err
   }
+  
+  defer file.Close()
+
 
   return file, nil
 }

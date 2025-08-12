@@ -4,6 +4,7 @@ import (
 	"bin/bins"
 	"bin/files"
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/fatih/color"
@@ -17,6 +18,13 @@ type Storage struct {
 const binsFileName = "bins.json"
 
 func GetStorage() (*Storage, error) {
+  isJson := files.CheckJsonExt(binsFileName)
+
+  if !isJson {
+    color.Red("Необходим файл в формате JSON")
+    return nil, errors.New("INVALID_EXT")
+  }
+
   _, err := files.CreateFile(binsFileName)
 
   if err != nil {
@@ -48,6 +56,13 @@ func GetStorage() (*Storage, error) {
 }
 
 func (storage *Storage) AddBin(bin bins.Bin) error {
+  isJson := files.CheckJsonExt(binsFileName)
+
+  if !isJson {
+    color.Red("Необходим файл в формате JSON")
+    return errors.New("INVALID_EXT")
+  }
+
   fileBytes, err := files.ReadFile(binsFileName)
 
   if err != nil {
@@ -83,6 +98,13 @@ func (storage *Storage) AddBin(bin bins.Bin) error {
 }
 
 func (storage *Storage) GetBins() (*bins.BinList, error) {
+  isJson := files.CheckJsonExt(binsFileName)
+
+  if !isJson {
+    color.Red("Необходим файл в формате JSON")
+    return nil, errors.New("INVALID_EXT")
+  }
+
   fileBytes, err := files.ReadFile(binsFileName)
 
   if err != nil {
