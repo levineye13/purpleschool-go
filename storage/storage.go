@@ -2,42 +2,37 @@ package storage
 
 import (
 	"bin/bins"
-	"bin/files"
 	"encoding/json"
-	"errors"
 	"time"
 
 	"github.com/fatih/color"
 )
+
+type Db interface {
+  Read() ([]byte, error)
+  Write([]byte) error
+}
 
 type Storage struct {
   Bins bins.BinList `json:"bins"`
   UpdateAt time.Time `json:"updateAt"`
 }
 
-const binsFileName = "bins.json"
+type StorageWithDb struct {
+  Storage
+  db Db
+}
 
-func GetStorage() (*Storage, error) {
-  isJson := files.CheckJsonExt(binsFileName)
-
-  if !isJson {
-    color.Red("Необходим файл в формате JSON")
-    return nil, errors.New("INVALID_EXT")
-  }
-
-  _, err := files.CreateFile(binsFileName)
+func GetStorage(db Db) (*StorageWithDb, error) {
+  fileBytes, err := db.Read()
 
   if err != nil {
-    color.Red("Ошибка создания файла")
-    return nil, err
-  }
-
-  fileBytes, err := files.ReadFile(binsFileName)
-
-  if err != nil {
-    return &Storage{
-      Bins: bins.BinList{},
-      UpdateAt: time.Now(),
+    return &StorageWithDb{
+      Storage: Storage{
+        Bins: bins.BinList{},
+        UpdateAt: time.Now(),
+      },
+      db: db,
     }, nil
   }
 
@@ -46,34 +41,31 @@ func GetStorage() (*Storage, error) {
   err = json.Unmarshal(fileBytes, &storage)
 
   if err != nil {
-    return &Storage{
-      Bins: bins.BinList{},
-      UpdateAt: time.Now(),
+    return &StorageWithDb{
+      Storage: Storage{
+        Bins: bins.BinList{},
+        UpdateAt: time.Now(),
+      },
+      db: db,
     }, nil
   }
 
-  return storage, nil
+  return &StorageWithDb{
+    Storage: *storage,
+    db: db,
+  }, nil
 }
 
-func (storage *Storage) AddBin(bin bins.Bin) error {
-  isJson := files.CheckJsonExt(binsFileName)
-
-  if !isJson {
-    color.Red("Необходим файл в формате JSON")
-    return errors.New("INVALID_EXT")
-  }
-
-  fileBytes, err := files.ReadFile(binsFileName)
+func (storage *StorageWithDb) AddBin(bin bins.Bin) error {
+  data, err := storage.db.Read()
 
   if err != nil {
-    color.Red("Ошибка чтения файла")
     return err
   }
 
-  err = json.Unmarshal(fileBytes, &storage)
+  err = json.Unmarshal(data, &storage)
 
-  if err != nil && len(fileBytes) > 0 {
-    color.Red("Ошибка преобразования из json")
+  if err != nil && len(data) > 0 {
     return err
   }
 
@@ -83,11 +75,10 @@ func (storage *Storage) AddBin(bin bins.Bin) error {
   newBins, err := json.Marshal(storage)
 
   if err != nil {
-    color.Red("Ошибка преобразования в json")
     return err
   }
 
-  err = files.WriteFile(binsFileName, newBins)
+  err = storage.db.Write(newBins)
 
   if err != nil {
     color.Red("Ошибка записи файла")
@@ -97,25 +88,16 @@ func (storage *Storage) AddBin(bin bins.Bin) error {
   return nil
 }
 
-func (storage *Storage) GetBins() (*bins.BinList, error) {
-  isJson := files.CheckJsonExt(binsFileName)
-
-  if !isJson {
-    color.Red("Необходим файл в формате JSON")
-    return nil, errors.New("INVALID_EXT")
-  }
-
-  fileBytes, err := files.ReadFile(binsFileName)
+func (storage *StorageWithDb) GetBins() (*bins.BinList, error) {
+  data, err := storage.db.Read()
 
   if err != nil {
-    color.Red("Ошибка чтения файла")
     return nil, err
   }
 
-  err = json.Unmarshal(fileBytes, &storage)
+  err = json.Unmarshal(data, &storage)
 
-  if err != nil && len(fileBytes) > 0 {
-    color.Red("Ошибка преобразования из json")
+  if err != nil && len(data) > 0 {
     return nil, err
   }
 

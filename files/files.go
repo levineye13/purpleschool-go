@@ -6,7 +6,17 @@ import (
 	"strings"
 )
 
-func CheckJsonExt(name string) bool {
+type JsonDb struct {
+  filename string
+}
+
+func CreateJsonDb(filename string) *JsonDb {
+  return &JsonDb{
+    filename: filename,
+  }
+}
+
+func (db *JsonDb) CheckJsonExt(name string) bool {
   splitedName := strings.Split(name, ".")
 
   if len(splitedName) < 2 {
@@ -18,10 +28,8 @@ func CheckJsonExt(name string) bool {
   return ext == "json"
 }
 
-func ReadFile(name string) ([]byte, error) {
-  
-
-	file, err := os.ReadFile(name)
+func (db *JsonDb) Read() ([]byte, error) {
+	file, err := os.ReadFile(db.filename)
 
   if err != nil {
     return nil, errors.New("CANT_READ_FILE")
@@ -30,8 +38,8 @@ func ReadFile(name string) ([]byte, error) {
   return file, nil
 }
 
-func WriteFile(name string, data []byte) error {
-  file, err := os.Create(name)
+func (db *JsonDb) Write(data []byte) error {
+  file, err := os.Create(db.filename)
 
   if err != nil {
     return errors.New("CANT_CREATE_FILE")
@@ -48,12 +56,12 @@ func WriteFile(name string, data []byte) error {
   return nil
 }
 
-func CreateFile(name string) (*os.File, error) {
-  _, err := os.Stat(name)
+func (db *JsonDb) CreateFile() (*os.File, error) {
+  _, err := os.Stat(db.filename)
   isNotExist := errors.Is(err, os.ErrNotExist)
 
   if isNotExist {
-    file, err := os.Create(name)
+    file, err := os.Create(db.filename)
 
     if err != nil {
       defer file.Close()
@@ -61,7 +69,7 @@ func CreateFile(name string) (*os.File, error) {
     }
   }
 
-  file, err := os.Open(name)
+  file, err := os.Open(db.filename)
 
   if err != nil {
     return nil, err
